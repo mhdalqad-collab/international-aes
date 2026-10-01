@@ -43,11 +43,17 @@ export default function Home(){
   const [lang,setLang]=useState<Lang>("ar"); const [menuOpen,setMenuOpen]=useState(false); const [sent,setSent]=useState(false);
   useEffect(()=>{const saved=localStorage.getItem("aes-language");if(saved==="ar"||saved==="en")queueMicrotask(()=>setLang(saved))},[]);
   useEffect(()=>{localStorage.setItem("aes-language",lang);document.documentElement.lang=lang;document.documentElement.dir=copy[lang].dir},[lang]);
+  useEffect(()=>{
+    if(!menuOpen)return;
+    const closeOnEscape=(event:KeyboardEvent)=>{if(event.key==="Escape")setMenuOpen(false)};
+    document.addEventListener("keydown",closeOnEscape);
+    return ()=>document.removeEventListener("keydown",closeOnEscape);
+  },[menuOpen]);
   const t=copy[lang], arrow=lang==="ar"?"←":"→";
   return <main dir={t.dir} className={`site-${lang}`}>
     <header className="nav-wrap">
       <div className="nav-main">
-        <a className="brand" href="#top"><span className="brand-seal" aria-hidden="true">AES<span/></span><span><b>{t.name}</b><small>{t.sub}</small></span></a>
+        <a className="brand" href="#top"><span className="brand-mark" aria-hidden="true"><i/><i/><i/></span><span><b>{t.name}</b><small>{t.sub}</small></span></a>
         <div className="nav-actions"><a className="archive-link" href="/archive">{lang==="ar"?"أرشيف العملاء":"Client Archive"}</a><button className="lang-switch" onClick={()=>setLang(lang==="ar"?"en":"ar")} aria-label="Switch language">{lang==="ar"?"EN":"العربية"}</button><a className="nav-cta" href="#contact">{t.cta}<span aria-hidden="true">{arrow}</span></a></div>
         <button className="menu-btn" onClick={()=>setMenuOpen(!menuOpen)} aria-label={lang==="ar"?"القائمة":"Menu"} aria-expanded={menuOpen} aria-controls="primary-navigation"><span/><span/></button>
       </div>
