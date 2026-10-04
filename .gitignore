@@ -48,3 +48,4 @@ next-env.d.ts
 /db/
 /drizzle/
 *.zip
+/public/assets/site-images/

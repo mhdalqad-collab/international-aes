@@ -16,6 +16,16 @@ Bilingual consulting website prepared for GoDaddy Node.js Hosting.
 
 The application creates the required MySQL tables automatically on the first database request. The same schema is also available at `database/schema.mysql.sql` for manual import.
 
+## Content administration
+
+The private `/admin` page manages previous projects, services, bilingual page text and contact details. It is intentionally absent from the public navigation. It requires `ADMIN_PASSWORD` (at least 12 characters), `ADMIN_SESSION_SECRET` (at least 32 characters), and the MySQL settings above. Set these in both GoDaddy Preview and Published Secrets. Do not use the client archive password as the admin password.
+
+The first database request creates a `site_content` row from the exact content bundled with this branch. Existing public content is preserved; edits made in the admin page are saved to MySQL and appear on the site without a GitHub push. Admin changes are applied when **Save changes** is clicked, and an edit in another session must be reloaded before it can be overwritten. Uploaded project images are kept in `public/assets/site-images` and served through `/api/media/...`; back up this directory with MySQL. The original site images and logo are not modified by the admin page.
+
+If the database is unavailable, the public website displays the bundled content while the admin page reports a database error. A code deployment can update the bundled starting content only before the database row has been created; afterward, the database is the source of truth.
+
+To review this feature without updating `main`, connect GoDaddy Preview to the `codex/admin-content-management` branch under **Settings → Integrations**, pull that branch and select **Update Preview**. Add the admin secrets and database credentials to the **Preview** secrets. Open the preview URL followed by `/admin`. Do not select **Publish to Live** until the branch is approved; publishing Preview can update the live site even while GitHub `main` is unchanged. For isolated content editing tests, point Preview at a separate MySQL database.
+
 ## Production commands
 
 - `npm run build` creates the production Next.js build.

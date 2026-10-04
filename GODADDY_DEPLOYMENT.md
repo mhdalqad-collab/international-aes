@@ -39,6 +39,8 @@ Add the following in **Settings > Secrets** for both Preview and Publish:
 ARCHIVE_PASSWORD=<the administrator password>
 ARCHIVE_SESSION_SECRET=<at least 32 random characters>
 FILE_ENCRYPTION_SECRET=<a different value of at least 32 random characters>
+ADMIN_PASSWORD=<a separate password of at least 12 characters>
+ADMIN_SESSION_SECRET=<another random value of at least 32 characters>
 ```
 
 Do not add `PORT`; GoDaddy supplies it automatically. Never put real secret values inside the ZIP.
@@ -62,6 +64,7 @@ Verify all of the following before publishing:
 - Excel export downloads successfully.
 - A document up to 20 MB uploads and downloads correctly.
 - Runtime logs contain no database or permission errors.
+- `/admin` accepts its separate admin password, loads existing content, and saves a test change to Preview content. Restore that test change after checking.
 
 ## 5. Publish and connect the domain
 
@@ -74,5 +77,6 @@ Back up these three items together:
 1. The managed MySQL database.
 2. `public/assets/customer-documents` from GoDaddy File Manager.
 3. `FILE_ENCRYPTION_SECRET` in a secure password manager.
+4. `public/assets/site-images` for uploaded project images.
 
 An encrypted document backup is unusable without the same encryption secret.
