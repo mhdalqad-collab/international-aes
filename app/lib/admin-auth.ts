@@ -23,13 +23,19 @@ export function adminPasswordMatches(candidate: string) {
 
 export function adminCookie(request: Request) {
   const expires = String(Date.now() + sessionLength);
-  const secure = new URL(request.url).protocol === "https:" ? " Secure;" : "";
+  const secure = publicRequestIsHttps(request) ? " Secure;" : "";
   return `${cookieName}=${expires}.${sign(expires)}; Path=/; HttpOnly;${secure} SameSite=Strict; Max-Age=${sessionLength / 1000}`;
 }
 
 export function clearAdminCookie(request: Request) {
-  const secure = new URL(request.url).protocol === "https:" ? " Secure;" : "";
+  const secure = publicRequestIsHttps(request) ? " Secure;" : "";
   return `${cookieName}=; Path=/; HttpOnly;${secure} SameSite=Strict; Max-Age=0`;
+}
+
+function publicRequestIsHttps(request: Request) {
+  return request.headers.get("origin")?.startsWith("https://") ||
+    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() === "https" ||
+    new URL(request.url).protocol === "https:";
 }
 
 export function isAdminAuthorized(request: Request) {
@@ -44,7 +50,18 @@ export function isAdminAuthorized(request: Request) {
 
 export function sameOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  return !!origin && origin === new URL(request.url).origin;
+  if (!origin || (request.headers.get("sec-fetch-site") && request.headers.get("sec-fetch-site") !== "same-origin")) return false;
+  try {
+    const submitted = new URL(origin);
+    if (submitted.origin !== origin || !["http:", "https:"].includes(submitted.protocol)) return false;
+    // Reverse proxies may expose an internal request.url while forwarding the public host.
+    const hosts = [request.headers.get("host"), request.headers.get("x-forwarded-host")?.split(",")[0]?.trim()]
+      .filter((host): host is string => !!host);
+    if (hosts.length === 0) hosts.push(new URL(request.url).host);
+    return hosts.some(host => submitted.host === host.toLowerCase());
+  } catch {
+    return false;
+  }
 }
 
 export function unauthorizedAdmin() {
