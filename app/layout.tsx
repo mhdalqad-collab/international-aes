@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   title: "Automated Engineering Systems | Integrated Industrial Consulting",
   description: "Syria’s leading consulting house brings engineering, technology and management together in one team—from diagnosing the challenge and shaping decisions to supervising implementation and measuring impact.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/aes-brand-icon.svg",
+    shortcut: "/aes-brand-icon.svg",
   },
 };
 
