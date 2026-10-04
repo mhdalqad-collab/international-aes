@@ -117,6 +117,8 @@ input:focus,select:focus,textarea:focus{border-color:#247e62;box-shadow:0 0 0 3p
 textarea{min-height:130px;resize:vertical}
 .contact form>button,.success button{width:100%;padding:15px 20px;display:flex;justify-content:space-between;gap:16px;border:0;border-radius:10px;background:var(--forest);color:white;font-weight:600;font-size:14px}
 .contact form>button:hover,.success button:hover{background:#093e36}
+.contact form>button:disabled{opacity:.6;cursor:wait}
+.contact .form-error{margin:12px 0 0;color:#a42a21;font-size:13px;line-height:1.6}
 .contact form>small{display:block;font-size:12px;text-align:center;color:var(--muted);margin-top:15px;line-height:1.7}
 .success{padding:30px 0;text-align:center}.success b{font-size:27px}.success p{margin:20px 0 30px;line-height:1.9;color:var(--muted)}
 

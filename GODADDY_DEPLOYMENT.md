@@ -45,6 +45,16 @@ ADMIN_SESSION_SECRET=<another random value of at least 32 characters>
 
 Do not add `PORT`; GoDaddy supplies it automatically. Never put real secret values inside the ZIP.
 
+To email new consultation requests to a temporary Gmail inbox, also add these secrets to the environment you are testing (Preview or Publish):
+
+```text
+INQUIRY_TO_EMAIL=<the inbox that should receive notifications>
+SMTP_USER=<the Gmail account used to send notifications>
+SMTP_PASSWORD=<a Google App Password for that account, not its normal password>
+```
+
+The default SMTP connection is `smtp.gmail.com` on port `465` with TLS. `SMTP_HOST` and `SMTP_PORT` can be set later if the sender changes providers; changing only the recipient requires updating `INQUIRY_TO_EMAIL`, not the code. A Google App Password requires 2-Step Verification. Create it in your Google Account and enter it only into GoDaddy Secrets. If GoDaddy blocks outbound SMTP, the request still stays in the client archive; check Runtime Logs for `email notification failed` and use an HTTPS email provider instead. Do not assume email is working until a real Preview submission arrives in the inbox.
+
 To generate secrets in PowerShell:
 
 ```powershell
@@ -59,6 +69,7 @@ Verify all of the following before publishing:
 
 - Arabic and English pages load and images appear.
 - A consultation request is saved.
+- With SMTP secrets configured, a notification for the request reaches the intended inbox; verify both the Inbox and Spam folders.
 - `/archive` accepts the administrator password.
 - The new customer appears in the archive.
 - Excel export downloads successfully.

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { type Lang, type SiteContent } from "./content/defaults";
 
 export default function Home({ content }: { content: SiteContent }){
   const { services, projects, copy, contact } = content;
   const [lang,setLang]=useState<Lang>("ar"); const [menuOpen,setMenuOpen]=useState(false); const [sent,setSent]=useState(false);
+  const [sending,setSending]=useState(false); const [submitError,setSubmitError]=useState("");
   useEffect(()=>{const saved=localStorage.getItem("aes-language");if(saved==="ar"||saved==="en")queueMicrotask(()=>setLang(saved))},[]);
   useEffect(()=>{localStorage.setItem("aes-language",lang);document.documentElement.lang=lang;document.documentElement.dir=copy[lang].dir},[lang,copy]);
   useEffect(()=>{
@@ -16,6 +17,19 @@ export default function Home({ content }: { content: SiteContent }){
     return ()=>document.removeEventListener("keydown",closeOnEscape);
   },[menuOpen]);
   const t=copy[lang], arrow=lang==="ar"?"←":"→";
+  async function submitInquiry(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    if(sending)return;
+    const body=Object.fromEntries(new FormData(event.currentTarget));
+    setSending(true);setSubmitError("");
+    try{
+      const response=await fetch("/api/inquiries",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+      if(response.ok)setSent(true);
+      else setSubmitError(lang==="ar"?"تعذر إرسال الطلب. يُرجى المحاولة مجدداً.":"We could not submit your request. Please try again.");
+    }catch{
+      setSubmitError(lang==="ar"?"تعذر الاتصال بالموقع. يُرجى المحاولة مجدداً.":"Could not reach the website. Please try again.");
+    }finally{setSending(false)}
+  }
   return <main dir={t.dir} className={`site-${lang}`}>
     <header className="nav-wrap">
       <div className="nav-main">
@@ -36,12 +50,12 @@ export default function Home({ content }: { content: SiteContent }){
     <section className="network section"><div><p className="eyebrow dark"><span/>{t.networkEye}</p><h2>{t.networkTitle[0]}<br/><em>{t.networkTitle[1]}</em></h2></div><div className="network-card"><div className="network-brand"><img src="/arab-experts-network-logo.png" alt="Arab Experts Network"/><a href="https://arabexperts.net/" target="_blank" rel="noreferrer">{t.networkLink}<span>↗</span></a></div><p>{t.networkText}</p><ul>{t.networkList.map(x=><li key={x}>{x}</li>)}</ul></div></section>
     <section className="contact section" id="contact">
       <div className="contact-copy"><p className="eyebrow"><span/>{t.contactEye}</p><h2>{t.contactTitle[0]}<br/>{t.contactTitle[1]}</h2><p>{t.contactText}</p><Contact label={t.scope} value={t.scopeValue}/><Contact label={t.syria} value={contact.syriaPhone} href={`tel:${contact.syriaPhone.replace(/[^+\d]/g,"")}`}/><Contact label={t.oman} value={contact.omanPhone} href={`https://wa.me/${contact.omanPhone.replace(/\D/g,"")}`}/><Contact label={t.email} value={contact.email} href={`mailto:${contact.email}`}/><Contact label="LinkedIn" value={lang==="ar"?"مجموعة النظم الهندسية المؤتمتة":"Automated Engineering Systems Group"} href={contact.linkedin}/></div>
-      <form onSubmit={async e=>{e.preventDefault();const f=e.currentTarget;const body=Object.fromEntries(new FormData(f));const res=await fetch("/api/inquiries",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});if(res.ok)setSent(true)}}>
+      <form onSubmit={submitInquiry}>
         {sent?<div className="success"><b>{t.success}</b><p>{t.successText}</p><button type="button" onClick={()=>setSent(false)}>{t.again}</button></div>:<>
           <div className="two"><label>{t.fields[0]}<input name="name" required placeholder={t.place[0]}/></label><label>{t.fields[1]}<input name="organization" required placeholder={t.place[1]}/></label></div>
           <div className="two"><label>{t.fields[2]}<input name="phone" required placeholder={t.place[2]}/></label><label>{lang==="ar"?"البريد الإلكتروني للعميل":"Client Email"}<input name="email" type="email" required autoComplete="email" placeholder={lang==="ar"?"name@example.com":"name@example.com"}/></label></div>
           <label>{t.fields[3]}<select name="area" defaultValue="" required><option value="" disabled>{t.place[3]}</option>{services.map(s=><option key={s[lang][0]}>{s[lang][0]}</option>)}</select></label>
-          <label>{t.fields[4]}<textarea name="message" required rows={4} placeholder={t.place[4]}/></label><button type="submit">{t.send}<b>{arrow}</b></button><small>{t.privacy}</small>
+          <label>{t.fields[4]}<textarea name="message" required rows={4} placeholder={t.place[4]}/></label><button type="submit" disabled={sending}>{sending?(lang==="ar"?"جارٍ الإرسال…":"Sending…"):t.send}<b>{arrow}</b></button>{submitError&&<p className="form-error" role="alert">{submitError}</p>}<small>{t.privacy}</small>
         </>}
       </form>
     </section>
