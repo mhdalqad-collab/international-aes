@@ -43,7 +43,7 @@ export async function sendInquiryEmail(inquiry: Inquiry) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "International AES Website <onboarding@resend.dev>",
+      from: "International AES Website <info@international-aes.com>>",
       to: [to],
       reply_to: inquiry.email,
       subject: "New consultation request | International AES",
