@@ -2,6 +2,8 @@
 
 This folder is the deployment root. `package.json` and `server.js` must appear at the top level of the uploaded ZIP. GoDaddy builds through Next.js' webpack pipeline because its restricted build environment blocks Turbopack's CSS subprocess, then runs the production build with Next.js's built-in server.
 
+The website's Geist, Geist Mono, and Noto Sans Arabic fonts are bundled in `public/fonts` with their licenses. Keep this folder in the deployment. Font loading uses `app/fonts.css`, so builds do not depend on Google's font API or the `next/font/google` URL parser.
+
 ## 1. Create the app
 
 1. Open GoDaddy **Node.js Hosting** and choose **Upload ZIP**.
