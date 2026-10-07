@@ -31,3 +31,19 @@ CREATE TABLE IF NOT EXISTS site_content (
   revision INT UNSIGNED NOT NULL DEFAULT 1,
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS site_images (
+  image_key VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+  content_type VARCHAR(32) NOT NULL,
+  byte_length INT UNSIGNED NOT NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS site_image_chunks (
+  image_key VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  chunk_index SMALLINT UNSIGNED NOT NULL,
+  image_data MEDIUMBLOB NOT NULL,
+  PRIMARY KEY (image_key, chunk_index),
+  CONSTRAINT site_image_chunks_image_fk
+    FOREIGN KEY (image_key) REFERENCES site_images(image_key) ON DELETE CASCADE
+) ENGINE=InnoDB;

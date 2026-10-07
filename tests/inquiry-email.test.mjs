@@ -37,7 +37,7 @@ test("Resend request preserves the inquiry notification", async () => {
     assert.equal(options.headers["Content-Type"], "application/json");
     const payload = JSON.parse(options.body);
     assert.deepEqual(payload, {
-      from: "International AES Website <onboarding@resend.dev>",
+      from: "International AES Website <info@international-aes.com>",
       to: ["info@international-aes.com"],
       reply_to: inquiry.email,
       subject: "New consultation request | International AES",

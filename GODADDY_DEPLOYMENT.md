@@ -75,6 +75,15 @@ Verify all of the following before publishing:
 - A document up to 20 MB uploads and downloads correctly.
 - Runtime logs contain no database or permission errors.
 - `/admin` accepts its separate admin password, loads existing content, and saves a test change to Preview content. Restore that test change after checking.
+- Upload a project image in `/admin`, save the project, and confirm it is visible. Restart the Preview app and open the same image URL with browser caching disabled to verify it is still served.
+
+### Project-image storage upgrade
+
+New project images are stored in MySQL (`site_images` and `site_image_chunks`), using the same database settings as editable content. No additional storage secrets are needed. Uploads use a transaction and small binary chunks so large images do not require one large SQL packet. A failed database write returns an upload error rather than an image URL.
+
+Before deploying this fix for the first time, download any existing `public/assets/site-images` files from GoDaddy File Manager in Preview and Publish. Earlier versions stored only image URLs in MySQL and the actual files in the app folder; rebuilding or replacing that folder can lose the files. After deployment, any legacy files that remain are imported into MySQL when their existing `/api/media/<key>` URLs are opened. If the folder was replaced, restore your backup to that folder and open the image URLs to import them, or re-upload images through `/admin` and save the projects. Already-missing files cannot be restored from the database URLs alone.
+
+Future source updates retain these images when the app continues to use the same MySQL database. If Preview and Publish use different databases, their content and images are separate; point them at the appropriate database or migrate both the content and image tables together.
 
 ## 5. Publish and connect the domain
 
@@ -84,9 +93,10 @@ Select **Publish Now**, then choose the domain in the app's Settings. GoDaddy co
 
 Back up these three items together:
 
-1. The managed MySQL database.
+1. The managed MySQL database, including `site_content`, `site_images`, and `site_image_chunks`.
 2. `public/assets/customer-documents` from GoDaddy File Manager.
 3. `FILE_ENCRYPTION_SECRET` in a secure password manager.
-4. `public/assets/site-images` for uploaded project images.
+
+Keep any legacy `public/assets/site-images` backup until those images have been imported into MySQL. New project-image uploads no longer depend on that folder.
 
 An encrypted document backup is unusable without the same encryption secret.
